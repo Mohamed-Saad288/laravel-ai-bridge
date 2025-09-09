@@ -9,13 +9,13 @@
 1. Install the package via Composer:
 
 ```bash
-composer require saad/ai-bridge
+composer require mohamedsaad/ai-bridge
 ```
 
 Or, if you are still developing locally:
 
 ```bash
-composer require saad/ai-bridge:@dev
+composer require mohamedsaad/ai-bridge:@dev
 ```
 
 Laravel will auto-discover the `AiServiceProvider`.  
