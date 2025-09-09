@@ -1,67 +1,80 @@
 # AI Bridge for Laravel
 
-**AI Bridge** is a Laravel package that allows you to run Python scripts (such as text similarity checks) inside Laravel using the `symfony/process` component.
+AI Bridge is a Laravel package that allows you to check the semantic similarity between two texts using Python and Sentence Transformers.
+
+It provides a simple PHP service and Laravel integration while running Python under the hood.
 
 ---
 
-## 🚀 Installation
+## 🚀 Features
 
-1. Install the package via Composer:
-
-```bash
-composer require mohamedsaad/ai-bridge
-```
-
-Or, if you are still developing locally:
-
-```bash
-composer require mohamedsaad/ai-bridge:@dev
-```
-
-Laravel will auto-discover the `AiServiceProvider`.  
-If needed, you can also add it manually in `config/app.php`.
+- **Semantic text similarity** (not just string matching).
+- Uses [sentence-transformers](https://www.sbert.net/) (`all-MiniLM-L6-v2`) for embeddings.
+- Easy to use inside Laravel via the service container or facade.
+- Built-in Python script execution with Symfony Process.
 
 ---
 
-## ⚙️ Usage
+## 📦 Installation
 
-Example: Run a Python similarity script
+1. **Install the package via Composer:**
+
+   ```bash
+   composer require mohamedsaad/ai-bridge
+   ```
+
+2. **Make sure you have Python 3.8+ installed.**
+
+3. **Install the Python dependencies:**
+
+   ```bash
+   pip install sentence-transformers torch
+   ```
+
+---
+
+## ⚡ Usage
+
+### Using the Service
 
 ```php
-use Saad\AiBridge\AiBridge;
+use Saad\AiBridge\AiService;
 
-$result = AiBridge::runPython('similarity.py', [
-    'text1' => 'I love programming',
-    'text2' => 'I enjoy coding'
-]);
+$ai = app(AiService::class);
 
-dd($result);
+$score = $ai->similarity("I love programming", "I enjoy coding");
+
+echo $score; // 0.85 (the closer to 1, the more similar)
 ```
 
-- Place your Python scripts inside the `python/` folder (e.g., `similarity.py`).
-- PHP will pass arguments to Python, and the script should return output (text or JSON).
+### Using the Facade
 
----
+```php
+use Facades\Ai;
 
-## 📂 Project Structure
+$score = Ai::similarity("Laravel is great", "I like PHP frameworks");
 
-```
-.
-├── src/               # Core PHP package code
-├── python/            # Python scripts
-├── composer.json
-└── README.md
+dd($score);
 ```
 
 ---
 
-## 👨‍💻 Author
+## 🛠 Requirements
 
-Mohamed Saad  
-[mohamed.saadd@gmail.com](mailto:mohamed.saadd@gmail.com)
+- PHP >= 8.1
+- Laravel >= 10
+- Python >= 3.8
+- Python Packages: `sentence-transformers`, `torch`
 
 ---
 
-## 📜 License
+## 📌 Example Output
 
-This package is open-sourced software licensed under the MIT license.
+- **Input:** `"I love programming"` vs `"I enjoy coding"`
+- **Output:** `0.82`
+
+---
+
+## 📝 License
+
+This package is open-sourced software licensed under the [MIT license](LICENSE).
