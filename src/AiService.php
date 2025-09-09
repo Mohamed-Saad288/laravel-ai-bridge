@@ -24,8 +24,11 @@ class AiService
 
     public function similarity(string $text1, string $text2): float
     {
+        // هنشغل الـ Python script
         $process = new Process([$this->pythonBinary, $this->scriptPath]);
-        $payload = json_encode(['text1' => $text1, 'text2' => $text2]);
+
+        // نجهز البيانات ونبعتها في stdin
+        $payload = json_encode(['text1' => $text1, 'text2' => $text2], JSON_UNESCAPED_UNICODE);
 
         $process->setInput($payload);
         $process->setTimeout(60);
@@ -36,14 +39,12 @@ class AiService
         }
 
         $output = trim($process->getOutput());
+
+        // متوقع يرجع JSON
         $data = json_decode($output, true);
 
         if (json_last_error() === JSON_ERROR_NONE && isset($data['similarity'])) {
             return (float)$data['similarity'];
-        }
-
-        if (is_numeric($output)) {
-            return (float)$output;
         }
 
         throw new \RuntimeException("Invalid response from Python script: " . $output);
