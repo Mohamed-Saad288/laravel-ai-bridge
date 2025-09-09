@@ -3,27 +3,65 @@
 namespace Saad\AiBridge;
 
 use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class AiService
 {
     protected string $pythonBinary;
     protected string $scriptPath;
 
-    public function __construct(?string $pythonBinary = null, ?string $scriptPath = null)
+    public function __construct(string $pythonBinary = null, string $scriptPath = null)
     {
-        $this->pythonBinary = $pythonBinary ?? 'python3';
-        $this->scriptPath   = $scriptPath ?? __DIR__ . '/../python/similarity.py';
+        $this->pythonBinary = $pythonBinary
+            ?? config('ai-bridge.python_binary')
+            ?? $this->detectPythonBinary();
+
+        $this->scriptPath = $scriptPath ?? realpath(__DIR__ . '/../python/similarity.py');
+        if (!$this->scriptPath) {
+            throw new \RuntimeException("Python script not found at expected path.");
+        }
     }
 
     public function similarity(string $text1, string $text2): float
     {
-        $process = new Process([$this->pythonBinary, $this->scriptPath, $text1, $text2]);
+        $process = new Process([$this->pythonBinary, $this->scriptPath]);
+        $payload = json_encode(['text1' => $text1, 'text2' => $text2]);
+
+        $process->setInput($payload);
+        $process->setTimeout(60);
         $process->run();
 
         if (!$process->isSuccessful()) {
-            throw new \RuntimeException($process->getErrorOutput());
+            throw new ProcessFailedException($process);
         }
 
-        return (float) trim($process->getOutput());
+        $output = trim($process->getOutput());
+        $data = json_decode($output, true);
+
+        if (json_last_error() === JSON_ERROR_NONE && isset($data['similarity'])) {
+            return (float)$data['similarity'];
+        }
+
+        if (is_numeric($output)) {
+            return (float)$output;
+        }
+
+        throw new \RuntimeException("Invalid response from Python script: " . $output);
+    }
+
+    protected function detectPythonBinary(): string
+    {
+        foreach (['py', 'python', 'python3'] as $cmd) {
+            try {
+                $p = new Process([$cmd, '--version']);
+                $p->run();
+                if ($p->isSuccessful()) {
+                    return $cmd;
+                }
+            } catch (\Throwable $e) {
+                // ignore and try next
+            }
+        }
+        throw new \RuntimeException("No python executable found. Set a python path in AiService constructor or config.");
     }
 }

@@ -1,11 +1,13 @@
 <?php
 
-namespace Facades;
+namespace Saad\AiBridge\Facades;
+
+use Illuminate\Support\Facades\Facade;
 
 class Ai extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'ai-service';
+        return \Saad\AiBridge\AiService::class;
     }
 }

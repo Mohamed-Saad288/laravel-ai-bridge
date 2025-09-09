@@ -1,6 +1,6 @@
 {
     "name": "mohamedsaad/ai-bridge",
-    "description": "AI Bridge package to run Python similarity check inside Laravel",
+    "description": "AI Bridge package to run Python semantic similarity checks inside Laravel",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -16,11 +16,6 @@
     "autoload": {
         "psr-4": {
             "Saad\\AiBridge\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Saad\\AiBridge\\Tests\\": "tests/"
         }
     },
     "extra": {
