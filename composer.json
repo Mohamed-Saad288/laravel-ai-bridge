@@ -1,5 +1,5 @@
 {
-    "name": "saad/ai-bridge",
+    "name": "mohamedsaad/ai-bridge",
     "description": "AI Bridge package to run Python similarity check inside Laravel",
     "type": "library",
     "license": "MIT",
